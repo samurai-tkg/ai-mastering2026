@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI & Automation Mastery - 受講生専用ポータル</title>
+    <!-- Tailwind CSS for high fidelity layout -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for interactive workspace icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            background-color: #0f172a;
+            color: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        .glow-indigo:hover {
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased">
+
+    <!-- ヘッダーナビゲーション -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-40 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <i class="fa-solid fa-graduation-cap text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight text-white flex items-center gap-2">
+                        AI & Automation Mastery <span class="text-xs bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full font-medium border border-indigo-500/30">STUDENT PORTAL</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">エンジニア × デザイナー融合を果たす 1-Day ハンズオン研修</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 w-full sm:w-auto justify-end">
+                <!-- 進捗率インジケータ -->
+                <div class="flex items-center gap-3 bg-slate-950/60 border border-slate-800 rounded-xl p-2 px-4 w-full sm:w-auto">
+                    <div class="text-left">
+                        <div class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">研修全体の進捗</div>
+                        <div class="text-sm font-bold text-emerald-400" id="progress-text">0% 完了 (0/10)</div>
+                    </div>
+                    <div class="w-24 bg-slate-800 h-2 rounded-full overflow-hidden">
+                        <div id="progress-bar" class="bg-gradient-to-r from-emerald-400 to-teal-500 h-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex-1 max-w-7xl w-full mx-auto flex flex-col md:flex-row gap-6 p-4 md:p-6">
+        
+        <!-- 左側：セクションナビゲーション (デスクトップ時は固定サイドバー) -->
+        <aside class="w-full md:w-64 flex-shrink-0 flex flex-col gap-3">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sticky top-24">
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 px-2">カリキュラム目次</p>
+                <nav class="flex flex-col gap-1.5" id="tab-navigation">
+                    <button onclick="switchTab('tab-welcome')" id="btn-tab-welcome" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-indigo-400 bg-indigo-500/10 border border-indigo-500/20">
+                        <i class="fa-solid fa-house w-5 text-center text-base"></i>
+                        <span>はじめに & 本日の時間割</span>
+                    </button>
+                    <button onclick="switchTab('tab-prompt')" id="btn-tab-prompt" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-slate-800/50">
+                        <i class="fa-solid fa-wand-magic-sparkles w-5 text-center text-base"></i>
+                        <span>午前：プロンプト & Canva</span>
+                    </button>
+                    <button onclick="switchTab('tab-video')" id="btn-tab-video" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-slate-800/50">
+                        <i class="fa-solid fa-clapperboard w-5 text-center text-base"></i>
+                        <span>午後①：映像生成 & 音声</span>
+                    </button>
+                    <button onclick="switchTab('tab-gas')" id="btn-tab-gas" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-slate-800/50">
+                        <i class="fa-solid fa-code w-5 text-center text-base"></i>
+                        <span>午後②：GAS × Gemini API</span>
+                    </button>
+                    <button onclick="switchTab('tab-appendix')" id="btn-tab-appendix" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-slate-800/50">
+                        <i class="fa-solid fa-book-open w-5 text-center text-base"></i>
+                        <span>Appendix：応用構築フロー</span>
+                    </button>
+                </nav>
+
+                <div class="mt-6 pt-4 border-t border-slate-800">
+                    <div class="p-3 bg-slate-950/50 border border-slate-800/80 rounded-xl">
+                        <span class="text-xs text-indigo-400 font-semibold block mb-1">💡 研修中の合言葉</span>
+                        <p class="text-[11px] text-slate-400 leading-relaxed">
+                            「AIを外側から単に使うのではなく、頭の中の構想(デザイン)とAIの高速な創造力を融合させよう！」
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 右側：メインコンテンツ表示領域 -->
+        <main class="flex-1 min-w-0">
+
+            <!-- TAB: WELCOME -->
+            <section id="tab-welcome" class="tab-content space-y-6">
+                <!-- ウェルカムカード -->
+                <div class="bg-gradient-to-r from-indigo-950 via-purple-950 to-slate-900 border border-indigo-500/20 rounded-2xl p-6 relative overflow-hidden shadow-2xl">
+                    <div class="absolute right-0 bottom-0 opacity-10 pointer-events-none transform translate-y-1/4 translate-x-1/6">
+                        <i class="fa-solid fa-graduation-cap text-[15rem]"></i>
+                    </div>
+                    <div class="relative z-10 max-w-2xl">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-semibold mb-4">
+                            <i class="fa-solid fa-bell animate-bounce"></i> Welcome to the AI Masterclass!
+                        </div>
+                        <h2 class="text-2xl md:text-3xl font-extrabold text-white mb-2 leading-tight">
+                            AIを活用するだけでなく、「操るデザイナー」になる1日
+                        </h2>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-4">
+                            本ページは、受講生のみなさんが本日1日を通して使用する専用ワークスペースです。
+                            講義資料、プロンプトの簡単作成ツール、ハンズオンで使用するGoogle Apps Script (GAS) コードがすべて揃っています。
+                            研修を進めるごとにチェックリストを埋め、進捗度100%を目指しましょう！
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 研修タイムスケジュールと個人チェックリスト -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                    <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-indigo-400"></i> 本日のやることチェックリスト (各自でチェックしてください)
+                    </h3>
+                    <div class="space-y-3" id="checklist-container">
+                        <!-- 朝の部 -->
+                        <div class="border-b border-slate-800/80 pb-3">
+                            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">午前：テキストAI・ビジュアル基礎</span>
+                            <div class="space-y-2">
+                                <label class="flex items-start gap-3 p-2 hover:bg-slate-850 rounded-lg cursor-pointer transition-colors">
+                                    <input type="checkbox" id="chk-1" onchange="updateProgress()" class="mt-1 h-4.5 w-4.5 rounded border-slate-700 bg-slate-800 text-indigo-500 focus:ring-indigo-500/30">
+                                    <div class="text-xs">
+                                        <span class="font-semibold text-slate-200">1. 【午前】深津式プロンプトを使ってChatGPT/Gemini/Claudeで実習を行う</span>
+                                        <p class="text-slate-400 text-[11px] mt-0.5">指示・制約事項を明確にした指示文の効果を実際に確認する</p>
+                                    </div>
+                                </label>
+                                <label class="flex items-start gap-3 p-2 hover:bg-slate-850 rounded-lg cursor-pointer transition-colors">
+                                    <input type="checkbox" id="chk-2" onchange="updateProgress()" class="mt-1 h-4.5 w-4.5 rounded border-slate-700 bg-slate-800 text-indigo-500 focus:ring-indigo-500/30">
+                                    <div class="text-xs">
+                                        <span class="font-semibold text-slate-200">2. 【午前】Canvaの定規・ガイド機能を使ってテキスト配置を整える</span>
+                                        <p class="text-slate-400 text-[11px] mt-0.5">1ピクセルにこだわり、枠線の端と配置するテキストをきれいに揃える</p>
+                                    </div>
+                                </label>
+                                <label class="flex items-start gap-3 p-2 hover:bg-slate-850 rounded-lg cursor-pointer transition-colors">
+                                    <input type="checkbox" id="chk-3" onchange="updateProgress()" class="mt-1 h-4.5 w-4.5 rounded border-slate-700 bg-slate-800 text-indigo-500 focus:ring-indigo-500/30">
+                                    <div class="text-xs">
+                                        <span class="font-semibold text-slate-200">3. 【午前】カラーコントラストチェッカーを理解し、文字の読みやすさを確保する</span>
+                                        <p class="text-slate-400 text-[11px] mt-0.5">無料プラン特有のRGB出力内でも視認性を劇的に上げる比率</p>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 午後の部① -->
+                        <div class="border-b border-slate-800/80 py-3">
+                            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">午後①：最新無料AIで動画と音声を生成する</span>
+                            <div class="space-y-2">
+                                <label class="flex items-start gap-3 p-2 hover:bg-slate-850 rounded-lg cursor-pointer transition-colors">
+                                    <input type="checkbox" id="chk-4" onchange="updateProgress()" class="mt-1 h-4.5 w-4.5 rounded border-slate-700 bg-slate-800 text-indigo-500 focus:ring-indigo-500/30">
+                                    <div class="text-xs">
+                                        <span class="font-semibold text-slate-200">4. 【午後①】Gemini Omni (Google Labs等) にログインし、動画生成を実行する</span>
+                                        <p class="text-slate-400 text-[11px] mt-0.5">高精度のシネマティックなカメラワークの英語指示による生成テスト</p>
+                                    </div>
+                                </label>
+                                <label class="flex items-start gap-3 p-2 hover:bg-slate-850 rounded-lg cursor-pointer transition-colors">
+                                    <input type="checkbox" id="chk-5" onchange="updateProgress()" class="mt-1 h-4.5 w-4.5 rounded border-slate-700 bg-slate-800 text-indigo-500 focus:ring-indigo-500/30">
+                                    <div class="text-xs">
+                                        <span class="font-semibold text-slate-200">5. 【午後①】生成された動画クリップにカメラ制御(Pan, Zoom, Tilt)を追加する</span>
+                                        <p class="text-slate-400 text-[11px] mt-0.5">被写体に動きをつけるプロンプトパラメーターチューニング</p>
+                                    </div>
+                                </label>
+                                <label class="flex items-start gap-3 p-2 hover:bg-slate-850 rounded-lg cursor-pointer transition-colors">
+                                    <input type="checkbox" id="chk-6" onchange="updateProgress()" class="mt-1 h-4.5 w-4.5 rounded border-slate-700 bg-slate-800 text-indigo-500 focus:ring-indigo-500/30">
+                                    <div class="text-xs">
+                                        <span class="font-semibold text-slate-200">6. 【午後①】編集アプリ(CapCut等)でテキスト読み上げによる音声合成を行う</span>
+                                        <p class="text-slate-400 text-[11px] mt-0.5">入力したテキストから自然なナレーション音声を瞬時に出力</p>
+                                    </div>
+                                </label>
+                                <label class="flex items-start gap-3 p-2 hover:bg-slate-850 rounded-lg cursor-pointer transition-colors">
+                                    <input type="checkbox" id="chk-7" onchange="updateProgress()" class="mt-1 h-4.5 w-4.5 rounded border-slate-700 bg-slate-800 text-indigo-500 focus:ring-indigo-500/30">
+                                    <div class="text-xs">
+                                        <span class="font-semibold text-slate-200">7. 【午後①】テロップ字幕と音声のズレをタイムライン上でミリ秒同期調整する</span>
+                                        <p class="text-slate-400 text-[11px] mt-0.5">音声の無音頭出しを極限までトリミングし、テロップ開始と完全に一致させる</p>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 午後の部② -->
+                        <div class="py-3">
+                            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">午後②：GAS × Gemini API 自動化システム構築</span>
+                            <div class="space-y-2">
+                                <label class="flex items-start gap-3 p-2 hover:bg-slate-850 rounded-lg cursor-pointer transition-colors">
+                                    <input type="checkbox" id="chk-8" onchange="updateProgress()" class="mt-1 h-4.5 w-4.5 rounded border-slate-700 bg-slate-800 text-indigo-500 focus:ring-indigo-500/30">
+                                    <div class="text-xs">
+                                        <span class="font-semibold text-slate-200">8. 【午後②】Google AI Studioから無料のAPIキーを安全に取得する</span>
+                                        <p class="text-slate-400 text-[11px] mt-0.5">キー漏洩防止のためローカルに直書きせず、準備を行う</p>
+                                    </div>
+                                </label>
+                                <label class="flex items-start gap-3 p-2 hover:bg-slate-850 rounded-lg cursor-pointer transition-colors">
+                                    <input type="checkbox" id="chk-9" onchange="updateProgress()" class="mt-1 h-4.5 w-4.5 rounded border-slate-700 bg-slate-800 text-indigo-500 focus:ring-indigo-500/30">
+                                    <div class="text-xs">
+                                        <span class="font-semibold text-slate-200">9. 【午後②】GASプロジェクトの「スクリプトプロパティ」にAPIキーを設定する</span>
+                                        <p class="text-slate-400 text-[11px] mt-0.5">「GEMINI_API_KEY」という名前で環境変数を安全にバインド</p>
+                                    </div>
+                                </label>
+                                <label class="flex items-start gap-3 p-2 hover:bg-slate-850 rounded-lg cursor-pointer transition-colors">
+                                    <input type="checkbox" id="chk-10" onchange="updateProgress()" class="mt-1 h-4.5 w-4.5 rounded border-slate-700 bg-slate-800 text-indigo-500 focus:ring-indigo-500/30">
+                                    <div class="text-xs">
+                                        <span class="font-semibold text-slate-200">10. 【午後②】GASコードを実行し、スプレッドシートのA列の文言を自動解析させる</span>
+                                        <p class="text-slate-400 text-[11px] mt-0.5">Gemini 2.5 Flashによる超高速な要約とカテゴリ分類の自動書き込みに成功</p>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: PROMPT & CANVA -->
+            <section id="tab-prompt" class="tab-content hidden space-y-6">
+                <!-- 午前学習ガイダンス -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-3">午前：プロンプト設計とビジュアル制作の極意</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        午前中の研修の目的は、「ただAIにお願いする」曖昧な態度を脱し、プロとしての出力制約とデザイン基準を手に入れることです。
+                        以下の「プロンプトビルダー」を使用して、精緻な役割定義と出力フォーマットを強制した指示を作成・実験してください。
+                    </p>
+                </div>
+
+                <!-- 構造化プロンプト・ビルダー (インタラクティブツール) -->
+                <div class="bg-slate-900 border border-indigo-500/20 rounded-2xl p-6 shadow-xl">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="p-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-xl">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </span>
+                        <div>
+                            <h4 class="text-base font-bold text-white">構造化プロンプト・ビルダー</h4>
+                            <p class="text-[11px] text-slate-400">穴埋めするだけで、AIが最も理解しやすい指示文を生成します</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-300 mb-1">① AIに与える役割(Role)</label>
+                                <input type="text" id="p-role" value="プロの優秀なコピーライター" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-indigo-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-300 mb-1">② ターゲット層(Target)</label>
+                                <input type="text" id="p-target" value="20代〜30代の働く女性" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-indigo-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-300 mb-1">③ 成果物の形式(Format)</label>
+                                <input type="text" id="p-format" value="30文字以内のキャッチコピーを5件" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-indigo-500 focus:outline-none">
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-300 mb-1">④ 制約・トーン(Constraints)</label>
+                                <textarea id="p-constraints" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-indigo-500 focus:outline-none resize-none">・専門用語は使わない
+・感情に訴えかける平易な日本語
+・ハッシュタグは末尾に3つのみ</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <button onclick="generatePrompt()" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-indigo-600/15 transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-gears"></i> プロンプトを生成する
+                        </button>
+                        <div class="relative mt-2">
+                            <textarea id="prompt-output" readonly rows="8" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-xs text-indigo-300 focus:outline-none font-mono custom-scrollbar resize-none" placeholder="生成されたプロンプトがここに表示されます"></textarea>
+                            <button onclick="copyToClipboard('prompt-output')" class="absolute top-2 right-2 px-3 py-1 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 text-[10px] font-bold rounded-lg transition-colors flex items-center gap-1.5">
+                                <i class="fa-solid fa-copy"></i> コピー
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Canva無料プランでも破綻しないためのデザインガイドライン -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                        <h4 class="font-bold text-white text-sm mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-compass-drafting text-purple-400"></i> デザインの黄金三原則
+                        </h4>
+                        <ul class="space-y-3 text-xs text-slate-300">
+                            <li class="flex items-start gap-2.5">
+                                <span class="h-5 w-5 bg-purple-500/10 border border-purple-500/30 rounded-lg flex items-center justify-center text-purple-300 font-bold flex-shrink-0">1</span>
+                                <div>
+                                    <strong class="text-white">定規・ガイドラインを常時ONに</strong>
+                                    <p class="text-[11px] text-slate-400 mt-0.5">Canvaでは「ファイル設定」＞「定規とガイドを表示」に。要素の「端」を整列させるだけで、アマチュア感が完全に消えます。</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="h-5 w-5 bg-purple-500/10 border border-purple-500/30 rounded-lg flex items-center justify-center text-purple-300 font-bold flex-shrink-0">2</span>
+                                <div>
+                                    <strong class="text-white">ジャンプ率（文字サイズ差）の強調</strong>
+                                    <p class="text-[11px] text-slate-400 mt-0.5">最も読ませたいキャッチコピーは「極太・最大」にし、補足の文字は「極細・最小」に。メリハリこそが洗練のデザインです。</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="h-5 w-5 bg-purple-500/10 border border-purple-500/30 rounded-lg flex items-center justify-center text-purple-300 font-bold flex-shrink-0">3</span>
+                                <div>
+                                    <strong class="text-white">背景とのコントラストを最優先</strong>
+                                    <p class="text-[11px] text-slate-400 mt-0.5">どれだけ綺麗な色でも、文字が背景に溶け込むと情報価値はゼロです。白背景には深黒、暗背景には極白が基本です。</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                        <h4 class="font-bold text-white text-sm mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-palette text-pink-400"></i> カラーコントラスト・チェック基準
+                        </h4>
+                        <div class="space-y-2.5">
+                            <div class="p-3 bg-slate-950/60 border border-slate-850 rounded-xl flex items-center justify-between">
+                                <div>
+                                    <span class="text-xs font-bold text-white">WCAG AA 規格 (標準)</span>
+                                    <p class="text-[10px] text-slate-400">文字サイズが小さい場合の視認性最低基準</p>
+                                </div>
+                                <span class="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold text-[10px] rounded-lg">比率 4.5:1</span>
+                            </div>
+                            <div class="p-3 bg-slate-950/60 border border-slate-850 rounded-xl flex items-center justify-between">
+                                <div>
+                                    <span class="text-xs font-bold text-white">WCAG AAA 規格 (最高解像)</span>
+                                    <p class="text-[10px] text-slate-400">どんなディスプレイ・環境でも確実に見やすい基準</p>
+                                </div>
+                                <span class="px-2.5 py-1 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-bold text-[10px] rounded-lg">比率 7:1</span>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-3 italic leading-relaxed">
+                            ※無料版Canvaでは「RGB」カラープロファイルで書き出されます。画面上でコントラストがギリギリだと、端末（モバイル等）ごとに見え方が大きく異なります。
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: VIDEO & AUDIO -->
+            <section id="tab-video" class="tab-content hidden space-y-6">
+                <!-- 午後①学習ガイダンス -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-3">午後①：無料生成AIによる動画の構築と音声合成同期</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        最新の動画生成AI（Gemini OmniやGoogle Labs Flow等）を操り、シネマティックで躍動感ある映像を生成します。
+                        動画生成において、思い通りの動きを引き出すには「英語の正確なカメラワーク指示」が必須です。
+                        以下のプロンプトメーカーを使って、英語指示文を自動構築して実験しましょう。
+                    </p>
+                </div>
+
+                <!-- 動画カメラ制御プロンプトメーカー -->
+                <div class="bg-slate-900 border border-pink-500/20 rounded-2xl p-6 shadow-xl">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="p-2 bg-pink-500/10 border border-pink-500/20 text-pink-400 rounded-xl">
+                            <i class="fa-solid fa-video"></i>
+                        </span>
+                        <div>
+                            <h4 class="text-base font-bold text-white">動画生成カメラワークメーカー</h4>
+                            <p class="text-[11px] text-slate-400">映像の「動き」を指定する高度な英語プロンプトを設定します</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-300 mb-1">主役・被写体 (Subject)</label>
+                                <input type="text" id="v-subject" value="A sleek glass teapot with steaming hot tea on a raw slate table" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-pink-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-300 mb-1">カメラ移動 (Camera Motion)</label>
+                                <select id="v-motion" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-pink-500 focus:outline-none">
+                                    <option value="slow pan right">Slow pan right (右方向にゆっくりパン移動)</option>
+                                    <option value="dolly zoom inward">Dolly zoom inward (迫るようなドリーズーム)</option>
+                                    <option value="crane shot rising up">Crane shot rising up (クレーンで上空へ垂直移動)</option>
+                                    <option value="360-degree orbit around the subject">360-degree orbit (被写体の周囲を360度旋回)</option>
+                                    <option value="extreme close-up shifting focus">Shifting focus close-up (フォーカスを送る極近接撮影)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-300 mb-1">画風・質感 (Cinematic Style)</label>
+                                <select id="v-style" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-pink-500 focus:outline-none">
+                                    <option value="photorealistic, shot on 35mm lens, high-definition, 8k resolution">Photorealistic (実写さながらのフォトリアル・8K)</option>
+                                    <option value="claymation style, cozy handmade tactile texture, stop-motion animation">Claymation (ぬくもりのあるストップモーション・クレイアニメ)</option>
+                                    <option value="futuristic cyberpunk, vibrant neon colors, volumetric atmospheric fog">Cyberpunk (近未来サイバーパンク・ネオンライティング)</option>
+                                    <option value="studio lighting, commercial style, shallow depth of field, blurred background">Commercial (スタジオライティング・ボケ味を効かせた商業広告風)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-300 mb-1">環境・照明 (Lighting & Environment)</label>
+                                <input type="text" id="v-light" value="Warm cinematic sunlight beaming through a large window, dust particles glowing in the air" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-pink-500 focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <button onclick="generateVideoPrompt()" class="w-full py-2 bg-pink-600 hover:bg-pink-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-pink-600/15 transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-code"></i> 動画プロンプトを構築する
+                        </button>
+                        <div class="relative mt-2">
+                            <textarea id="video-prompt-output" readonly rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-xs text-pink-300 focus:outline-none font-mono custom-scrollbar resize-none" placeholder="構築された英語の動画生成プロンプトがここに表示されます"></textarea>
+                            <button onclick="copyToClipboard('video-prompt-output')" class="absolute top-2 right-2 px-3 py-1 bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 border border-pink-500/30 text-[10px] font-bold rounded-lg transition-colors flex items-center gap-1.5">
+                                <i class="fa-solid fa-copy"></i> コピー
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 音声合成・編集タイムライン同期シミュレータ -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                    <h4 class="font-bold text-white text-sm mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-wave-square text-cyan-400"></i> 音声・テロップ完全同期（ミリ秒単位）の技術概念
+                    </h4>
+                    <p class="text-xs text-slate-300 leading-relaxed mb-4">
+                        合成音声(TTS)を動画に載せる際、書き出された音源には必ず開始前にわずかな「無音領域（空白）」が入ります。これをカットせずに配置すると、テロップの切り替わりと声の出だしがズレて非常に不自然な映像になってしまいます。
+                    </p>
+                    
+                    <!-- 簡易アニメーションシミュレータ -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                        <span class="text-[10px] font-bold text-slate-400 block mb-2 uppercase tracking-wider">同期ズレ タイムライン可視化</span>
+                        
+                        <!-- 悪い例 -->
+                        <div class="space-y-2 mb-4 pb-4 border-b border-slate-900">
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] font-bold text-red-400 w-16">悪い例（ズレあり）</span>
+                                <div class="flex-1 bg-slate-900 h-6 rounded overflow-hidden relative flex items-center">
+                                    <div class="bg-amber-500/30 text-amber-300 border border-amber-500/40 text-[9px] px-2 py-0.5 rounded absolute left-2 font-mono">字幕テロップ：1秒目で表示</div>
+                                    <div class="bg-red-500/30 text-red-300 border border-red-500/40 text-[9px] px-2 py-0.5 rounded absolute left-24 font-mono">🔊 音声：1.8秒目で再生（遅れ）</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 良い例 -->
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] font-bold text-emerald-400 w-16">良い例（同期済）</span>
+                                <div class="flex-1 bg-slate-900 h-6 rounded overflow-hidden relative flex items-center">
+                                    <div class="bg-amber-500/30 text-amber-300 border border-amber-500/40 text-[9px] px-2 py-0.5 rounded absolute left-2 font-mono">字幕テロップ：1秒目で表示</div>
+                                    <div class="bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[9px] px-2 py-0.5 rounded absolute left-2 font-mono ml-0.5 flex items-center gap-1">
+                                        <i class="fa-solid fa-check text-emerald-400"></i>
+                                        <span>🔊 音声：1秒目に前詰めトリミング済</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: GAS & GEMINI -->
+            <section id="tab-gas" class="tab-content hidden space-y-6">
+                <!-- 午後②学習ガイダンス -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-3">午後②：スプレッドシート × Gemini API 自動化ハンズオン</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        本研修のメインディッシュです。Google Apps Script (GAS) を用いて、GoogleスプレッドシートのA列に入力されたデータを、
+                        無料枠内で利用可能な超高速AIモデル <code class="bg-indigo-950 text-indigo-300 px-1.5 py-0.5 rounded font-mono text-xs">gemini-2.5-flash</code> に渡し、
+                        要約をB列に、カテゴリ分類をC列に一括で書き出す全自動環境を構築します。
+                    </p>
+                </div>
+
+                <!-- API・GAS 設定マニュアルステップ -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                    <h4 class="font-bold text-white text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-list-ol text-indigo-400"></i> 導入ステップ一覧 (これを見ながら進めてください)
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="p-4 bg-slate-950/60 border border-slate-800 rounded-xl">
+                            <span class="text-xs font-bold text-slate-500 block mb-1">STEP 1</span>
+                            <span class="text-sm font-bold text-white block mb-2">APIキーの取得</span>
+                            <p class="text-[11px] text-slate-400 leading-relaxed">
+                                <a href="https://aistudio.google.com/" target="_blank" class="text-indigo-400 underline hover:text-indigo-300">Google AI Studio</a>にアクセスし、"Create API key"から無料のキーを発行・コピーします。
+                            </p>
+                        </div>
+                        <div class="p-4 bg-slate-950/60 border border-slate-800 rounded-xl">
+                            <span class="text-xs font-bold text-slate-500 block mb-1">STEP 2</span>
+                            <span class="text-sm font-bold text-white block mb-2">安全な環境設定</span>
+                            <p class="text-[11px] text-slate-400 leading-relaxed">
+                                GASエディタの「プロジェクトの設定（歯車）」＞「スクリプトプロパティを追加」で、プロパティ名「<code class="font-mono text-indigo-300 bg-indigo-950 px-1 py-0.5 rounded">GEMINI_API_KEY</code>」として取得したキーを保存します。
+                            </p>
+                        </div>
+                        <div class="p-4 bg-slate-950/60 border border-slate-800 rounded-xl">
+                            <span class="text-xs font-bold text-slate-500 block mb-1">STEP 3</span>
+                            <span class="text-sm font-bold text-white block mb-2">コードのコピペ</span>
+                            <p class="text-[11px] text-slate-400 leading-relaxed">
+                                下記に提示されているGASコードを、GASの「<code class="font-mono text-pink-300 bg-pink-950 px-1 py-0.5 rounded">コード.gs</code>」に貼り付け、上部の「保存」＞「実行」を実行します。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GASソースコード ＆ インタラクティブコード解説器 -->
+                <div class="bg-slate-900 border border-indigo-500/20 rounded-2xl p-6 shadow-xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="p-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-xl">
+                                <i class="fa-solid fa-code"></i>
+                            </span>
+                            <div>
+                                <h4 class="text-base font-bold text-white">コピペ用 GAS プログラム（コード.gs）</h4>
+                                <p class="text-[11px] text-slate-400">コード行をクリックすると、その部分の解説が下に表示されます</p>
+                            </div>
+                        </div>
+                        <button onclick="copyToClipboard('gas-code-raw')" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-indigo-600/15 transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-copy"></i> 全コードをコピー
+                        </button>
+                    </div>
+
+                    <!-- 隠しテキストエリア（コピー動作用） -->
+                    <textarea id="gas-code-raw" class="hidden">/**
+ * スプレッドシートのA列のテキストを読み込み、Gemini APIを用いて自動要約・分類を実行します。
+ */
+function runGeminiAutomation() {
+  // 1. スクリプトプロパティから安全にAPIキーを取得
+  const apiKey = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
+  if (!apiKey) {
+    Browser.msgBox('エラー: スクリプトプロパティ "GEMINI_API_KEY" が設定されていません。設定を確認してください。');
+    return;
+  }
+
+  // 2. スプレッドシートのアクティブシートからデータを取得
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const lastRow = sheet.getLastRow();
+  
+  if (lastRow < 2) {
+    Browser.msgBox('処理するデータがありません。A列の2行目以降にテキストを入力してください。');
+    return;
+  }
+
+  // A列の2行目から最終行までのデータ（入力テキスト）を取得
+  const dataRange = sheet.getRange(2, 1, lastRow - 1, 1);
+  const values = dataRange.getValues();
+
+  // 3. 各行に対してAPIリクエストを実行
+  for (let i = 0; i < values.length; i++) {
+    const rawText = values[i][0];
+    const currentRow = i + 2; // スプレッドシートの実際の行番号
+
+    // 空白セルはスキップ
+    if (!rawText) continue;
+
+    // すでにB列とC列に値が入っている場合は処理をスキップ
+    const checkSummary = sheet.getRange(currentRow, 2).getValue();
+    const checkCategory = sheet.getRange(currentRow, 3).getValue();
+    if (checkSummary && checkCategory) continue;
+
+    try {
+      const result = callGeminiForAnalysis(apiKey, rawText);
+      
+      // 結果をスプレッドシートに書き込み
+      sheet.getRange(currentRow, 2).setValue(result.summary);
+      sheet.getRange(currentRow, 3).setValue(result.category);
+      
+      // 無料枠API制限を考慮し、処理の合間に1秒の待機時間を挟む
+      Utilities.sleep(1000);
+    } catch (e) {
+      Logger.log(`行 ${currentRow} の処理中にエラーが発生しました: ${e.toString()}`);
+      sheet.getRange(currentRow, 2).setValue('エラー発生');
+      sheet.getRange(currentRow, 3).setValue(e.toString());
+    }
+  }
+  
+  Browser.msgBox('処理がすべて完了しました！');
+}
+
+/**
+ * Gemini API (gemini-2.5-flash) を呼び出し、構造化されたJSONレスポンスを取得する内部関数です。
+ */
+function callGeminiForAnalysis(apiKey, text) {
+  const MODEL_NAME = 'gemini-2.5-flash';
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`;
+
+  // プロンプト設計：JSONスキーマに沿った回答を出力させる構造化プロンプト
+  const prompt = `
+  以下のテキストを分析し、指定されたフォーマット（JSON）のみで回答してください。
+  それ以外の前置きや説明は一切出力に含めないでください。
+
+  ---
+  分析対象テキスト：
+  "${text}"
+  ---
+
+  ■ 出力JSONスキーマ
+  {
+    "summary": "日本語で要約された30文字以内の文章",
+    "category": "「問い合わせ」「クレーム」「アイデア」「雑談」「その他」の中から最も適したものを1つ選択"
+  }
+  `;
+
+  const payload = {
+    "contents": [
+      {
+        "parts": [
+          { "text": prompt }
+        ]
+      }
+    ],
+    "generationConfig": {
+      "responseMimeType": "application/json"
+    }
+  };
+
+  const options = {
+    "method": "post",
+    "contentType": "application/json",
+    "payload": JSON.stringify(payload),
+    "muteHttpExceptions": true
+  };
+
+  const response = UrlFetchApp.fetch(apiUrl, options);
+  const responseCode = response.getResponseCode();
+  const responseText = response.getContentText();
+
+  if (responseCode !== 200) {
+    throw new Error(`APIエラー (ステータス: ${responseCode}): ${responseText}`);
+  }
+
+  const jsonResponse = JSON.parse(responseText);
+  const rawContent = jsonResponse.contents[0].parts[0].text;
+  
+  return JSON.parse(rawContent);
+}</textarea>
+
+                    <!-- インタラクティブ行解説表示システム -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <div class="lg:col-span-2 border border-slate-800 rounded-xl overflow-hidden bg-slate-950 font-mono text-[11px] leading-relaxed p-4 custom-scrollbar overflow-x-auto max-h-[450px]">
+                            <div onclick="showExplain(1)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-slate-500"><span class="text-indigo-400">01:</span> /**</div>
+                            <div onclick="showExplain(1)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-slate-400"><span class="text-indigo-400">02:</span>  * スプレッドシートのA列のテキストを読み込み自動分類するメイン処理です。</div>
+                            <div onclick="showExplain(1)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-slate-500"><span class="text-indigo-400">03:</span>  */</div>
+                            <div onclick="showExplain(1)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-white"><span class="text-indigo-400">04:</span> <span class="text-purple-400">function</span> <span class="text-emerald-400">runGeminiAutomation</span>() {</div>
+                            <div onclick="showExplain(2)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-slate-400"><span class="text-indigo-400">05:</span>   <span class="text-slate-500">// 1. スクリプトプロパティから安全にAPIキーを取得</span></div>
+                            <div onclick="showExplain(2)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-emerald-300"><span class="text-indigo-400">06:</span>   <span class="text-purple-400">const</span> apiKey = PropertiesService.getScriptProperties().getProperty(<span class="text-pink-400">'GEMINI_API_KEY'</span>);</div>
+                            <div onclick="showExplain(3)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-white"><span class="text-indigo-400">07:</span>   <span class="text-purple-400">if</span> (!apiKey) {</div>
+                            <div onclick="showExplain(3)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-pink-300"><span class="text-indigo-400">08:</span>     Browser.msgBox(<span class="text-pink-400">'エラー: スクリプトプロパティ "GEMINI_API_KEY" が設定されていません。'</span>);</div>
+                            <div onclick="showExplain(3)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-white"><span class="text-indigo-400">09:</span>     <span class="text-purple-400">return</span>;</div>
+                            <div onclick="showExplain(3)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-white"><span class="text-indigo-400">10:</span>   }</div>
+                            <div class="text-slate-600 p-1"><span class="text-indigo-400">11:</span> </div>
+                            <div onclick="showExplain(4)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-slate-400"><span class="text-indigo-400">12:</span>   <span class="text-slate-500">// 2. スプレッドシートのアクティブシートからデータを取得</span></div>
+                            <div onclick="showExplain(4)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-emerald-300"><span class="text-indigo-400">13:</span>   <span class="text-purple-400">const</span> sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();</div>
+                            <div onclick="showExplain(4)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-emerald-300"><span class="text-indigo-400">14:</span>   <span class="text-purple-400">const</span> lastRow = sheet.getLastRow();</div>
+                            <div onclick="showExplain(5)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-white"><span class="text-indigo-400">15:</span>   <span class="text-purple-400">if</span> (lastRow &lt; 2) {</div>
+                            <div onclick="showExplain(5)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-pink-300"><span class="text-indigo-400">16:</span>     Browser.msgBox(<span class="text-pink-400">'A列の2行目以降にテキストを入力してください。'</span>);</div>
+                            <div onclick="showExplain(5)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-white"><span class="text-indigo-400">17:</span>     <span class="text-purple-400">return</span>;</div>
+                            <div onclick="showExplain(5)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-white"><span class="text-indigo-400">18:</span>   }</div>
+                            <div class="text-slate-600 p-1"><span class="text-indigo-400">19:</span> </div>
+                            <div onclick="showExplain(6)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-slate-400"><span class="text-indigo-400">20:</span>   <span class="text-slate-500">// 2行目から最終行までのデータ範囲を取得</span></div>
+                            <div onclick="showExplain(6)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-emerald-300"><span class="text-indigo-400">21:</span>   <span class="text-purple-400">const</span> dataRange = sheet.getRange(2, 1, lastRow - 1, 1);</div>
+                            <div onclick="showExplain(6)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-emerald-300"><span class="text-indigo-400">22:</span>   <span class="text-purple-400">const</span> values = dataRange.getValues();</div>
+                            <div class="text-slate-600 p-1"><span class="text-indigo-400">23:</span> </div>
+                            <div onclick="showExplain(7)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-slate-400"><span class="text-indigo-400">24:</span>   <span class="text-slate-500">// 3. 各行に対して順次API処理を実行</span></div>
+                            <div onclick="showExplain(7)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-white"><span class="text-indigo-400">25:</span>   <span class="text-purple-400">for</span> (<span class="text-purple-400">let</span> i = 0; i &lt; values.length; i++) {</div>
+                            <div onclick="showExplain(7)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-emerald-300"><span class="text-indigo-400">26:</span>     <span class="text-purple-400">const</span> rawText = values[i][0];</div>
+                            <div onclick="showExplain(7)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-emerald-300"><span class="text-indigo-400">27:</span>     <span class="text-purple-400">const</span> currentRow = i + 2;</div>
+                            <div onclick="showExplain(8)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-slate-400"><span class="text-indigo-400">28:</span>     <span class="text-slate-500">// 既に結果が入っている場合はリクエスト制限保護のためスキップ</span></div>
+                            <div onclick="showExplain(8)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-emerald-300"><span class="text-indigo-400">29:</span>     <span class="text-purple-400">const</span> checkSummary = sheet.getRange(currentRow, 2).getValue();</div>
+                            <div onclick="showExplain(8)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-emerald-300"><span class="text-indigo-400">30:</span>     <span class="text-purple-400">const</span> checkCategory = sheet.getRange(currentRow, 3).getValue();</div>
+                            <div onclick="showExplain(8)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-white"><span class="text-indigo-400">31:</span>     <span class="text-purple-400">if</span> (checkSummary && checkCategory) <span class="text-purple-400">continue</span>;</div>
+                            <div class="text-slate-600 p-1"><span class="text-indigo-400">32:</span> </div>
+                            <div onclick="showExplain(9)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-white"><span class="text-indigo-400">33:</span>     <span class="text-purple-400">try</span> {</div>
+                            <div onclick="showExplain(9)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-emerald-300"><span class="text-indigo-400">34:</span>       <span class="text-purple-400">const</span> result = callGeminiForAnalysis(apiKey, rawText);</div>
+                            <div onclick="showExplain(10)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-emerald-300"><span class="text-indigo-400">35:</span>       sheet.getRange(currentRow, 2).setValue(result.summary);</div>
+                            <div onclick="showExplain(10)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-emerald-300"><span class="text-indigo-400">36:</span>       sheet.getRange(currentRow, 3).setValue(result.category);</div>
+                            <div onclick="showExplain(11)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-slate-400"><span class="text-indigo-400">37:</span>       <span class="text-slate-500">// 無料枠制限（15RPM）を考慮して1秒スリープ</span></div>
+                            <div onclick="showExplain(11)" class="hover:bg-slate-800 p-1 rounded cursor-pointer text-emerald-300"><span class="text-indigo-400">38:</span>       Utilities.sleep(1000);</div>
+                            <div class="text-slate-500 p-1"><span class="text-indigo-400">...以下省略 (詳細は全コピーして確認)</span></div>
+                        </div>
+                        
+                        <div class="border border-slate-850 rounded-xl p-4 bg-slate-950/80 flex flex-col justify-between">
+                            <div>
+                                <h5 class="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-2">💡 行コード解説</h5>
+                                <div id="explainer-content" class="text-xs text-slate-300 leading-relaxed">
+                                    左側のコードの各行をクリックすると、そのコードが何を行っているかがここに図示・解説されます。
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-slate-900">
+                                <div class="p-2.5 bg-indigo-500/10 border border-indigo-500/20 rounded-lg text-[10px] text-indigo-300">
+                                    <strong>安全安心仕様:</strong><br>
+                                    APIキーをプログラム内に記述しない手法を徹底して学びます。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: APPENDIX -->
+            <section id="tab-appendix" class="tab-content hidden space-y-6">
+                <!-- Appendixガイダンス -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-2">Appendix（付録）：ビジネスへの展開と自動化システムアーキテクチャ</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        本日の本編技術をマスターした後、実際に商業ビジネスや社内受託インフラとして展開する際の、
+                        「外部APIや決済（PayPayなど）、音声クローン（ElevenLabs）、公式LINE、高精細商業印刷」の接続仕様をここに解説します。
+                    </p>
+                </div>
+
+                <!-- 4大ビジネス展開ブループリント -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- LINE受電インフラ -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                        <span class="p-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-xl inline-block mb-3">
+                            <i class="fa-solid fa-phone-volume"></i>
+                        </span>
+                        <h4 class="font-bold text-white text-sm mb-2">1. LINE公式＆クラウド受電自動化</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                            IP電話(Twilio)と文字起こし(Whisper)を連携し、顧客からの着信通話を自動録音・即時テキスト化して公式LINE宛てに要約通知を飛ばします。
+                        </p>
+                        <div class="p-3 bg-slate-950/60 border border-slate-850 rounded-xl space-y-1.5 text-[11px] font-mono text-slate-300">
+                            <div><i class="fa-solid fa-arrow-right text-indigo-400 mr-1"></i> [着信] ──> Twilio SIP</div>
+                            <div><i class="fa-solid fa-arrow-right text-indigo-400 mr-1"></i> [録音] ──> OpenAI Whisper API</div>
+                            <div><i class="fa-solid fa-arrow-right text-indigo-400 mr-1"></i> [要約] ──> Gemini-2.5-Flash</div>
+                            <div><i class="fa-solid fa-arrow-right text-indigo-400 mr-1"></i> [配信] ──> LINE Webhook (yoom経由)</div>
+                        </div>
+                    </div>
+
+                    <!-- 音声クローン -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                        <span class="p-2 bg-pink-500/10 border border-pink-500/20 text-pink-400 rounded-xl inline-block mb-3">
+                            <i class="fa-solid fa-microphone-lines"></i>
+                        </span>
+                        <h4 class="font-bold text-white text-sm mb-2">2. 店長の「音声デジタルクローン」技術</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                            ElevenLabsのクローン生成モデルを用いて店長自身の声色をデジタルクローン化。飲食店の紹介やSNS動画にその声をあて、制作コストを削減。
+                        </p>
+                        <div class="p-3 bg-slate-950/60 border border-slate-850 rounded-xl space-y-1.5 text-[11px] text-slate-300 leading-relaxed">
+                            <span class="text-pink-400 font-bold block">🚨 注意事項と商用展開ルール：</span>
+                            無料プランでは商用動画（広告・収益化等）の利用はライセンス規約違反です。商業利用は最低でもStarterプラン契約が必要。必ず本人の声紋認証同意書が必要です。
+                        </div>
+                    </div>
+
+                    <!-- Canva Pro印刷 -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                        <span class="p-2 bg-purple-500/10 border border-purple-500/20 text-purple-400 rounded-xl inline-block mb-3">
+                            <i class="fa-solid fa-print"></i>
+                        </span>
+                        <h4 class="font-bold text-white text-sm mb-2">3. Canva Pro 商業印刷完全データ(300dpi/CMYK)</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                            Canvaの有償プランにより、印刷所へそのまま入稿して色ブレや文字化けを起こさない高解像度PDFデータの出力を制御します。
+                        </p>
+                        <div class="p-3 bg-slate-950/60 border border-slate-850 rounded-xl space-y-2 text-[11px] text-slate-300">
+                            <div class="flex items-center gap-2">
+                                <span class="h-1.5 w-1.5 rounded-full bg-purple-400"></span>
+                                <span>RGB(画面用)から <strong>CMYKカラープロファイル</strong> へ変更出力</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="h-1.5 w-1.5 rounded-full bg-purple-400"></span>
+                                <span>透明度不具合を回避する <strong>PDFの平坦化（Flattening）</strong></span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="h-1.5 w-1.5 rounded-full bg-purple-400"></span>
+                                <span>3mmの「塗り足し（裁ち落とし）」とトリムマークを自動生成</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PayPayリンク決済 -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                        <span class="p-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl inline-block mb-3">
+                            <i class="fa-solid fa-credit-card"></i>
+                        </span>
+                        <h4 class="font-bold text-white text-sm mb-2">4. LINE上のPayPay決済と自動Webhook連携</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                            顧客がその場でスピーディに決済し、自動で制作本番プロセスをキックするための仕組み。
+                        </p>
+                        <div class="p-3 bg-slate-950/60 border border-slate-850 rounded-xl space-y-1.5 text-[11px] text-slate-300 leading-relaxed">
+                            <span class="text-emerald-400 font-bold block">⚠ 規約違反リスクの回避：</span>
+                            個人の送金リンクやQRコードを商業売上に使うのはPayPay規約上厳禁（即座に口座凍結されます）。必ず「PayPay for Business（正規加盟店）」のAPIを利用して自動決済URLを生成させます。
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- トースト通知用要素 -->
+    <div id="toast" class="fixed bottom-6 right-6 px-4 py-2.5 bg-slate-900 border border-emerald-500/40 text-emerald-300 text-xs font-semibold rounded-xl shadow-2xl flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toast-message">メッセージ</span>
+    </div>
+
+    <!-- フッター -->
+    <footer class="border-t border-slate-800 bg-slate-950/40 py-6 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p>© 2026 TKG Lab. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // タブ切り替え処理
+        function switchTab(tabId) {
+            // 全タブコンテンツを非表示
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            // 選択されたタブのみ表示
+            document.getElementById(tabId).classList.remove('hidden');
+
+            // ボタンアクティブ表示切り替え
+            document.querySelectorAll('#tab-navigation button').forEach(btn => {
+                btn.className = "tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-slate-800/50";
+            });
+
+            // クリックされたボタンのスタイル更新
+            const activeBtn = document.getElementById('btn-' + tabId);
+            if (activeBtn) {
+                activeBtn.className = "tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-indigo-400 bg-indigo-500/10 border border-indigo-500/20";
+            }
+        }
+
+        // トースト通知表示関数（alert/confirm不使用）
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            toastMsg.innerText = message;
+            
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // クリップボードへコピー
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            element.select();
+            element.setSelectionRange(0, 99999); // モバイル対応
+
+            try {
+                document.execCommand('copy');
+                showToast("クリップボードにコピーしました！");
+            } catch (err) {
+                showToast("コピーに失敗しました。直接選択してください。");
+            }
+        }
+
+        // 進捗率アップデート
+        function updateProgress() {
+            const totalChecks = 10;
+            let checkedCount = 0;
+
+            for (let i = 1; i <= totalChecks; i++) {
+                const chk = document.getElementById('chk-' + i);
+                if (chk && chk.checked) {
+                    checkedCount++;
+                    localStorage.setItem('chk-' + i, 'true');
+                } else {
+                    localStorage.setItem('chk-' + i, 'false');
+                }
+            }
+
+            const percentage = Math.round((checkedCount / totalChecks) * 100);
+            
+            // UIを更新
+            document.getElementById('progress-bar').style.width = percentage + '%';
+            document.getElementById('progress-text').innerText = `${percentage}% 完了 (${checkedCount}/${totalChecks})`;
+        }
+
+        // ページロード時の進捗読み込み
+        function loadProgress() {
+            const totalChecks = 10;
+            for (let i = 1; i <= totalChecks; i++) {
+                const checkedStatus = localStorage.getItem('chk-' + i);
+                const chk = document.getElementById('chk-' + i);
+                if (chk && checkedStatus === 'true') {
+                    chk.checked = true;
+                }
+            }
+            updateProgress();
+        }
+
+        // プロンプトビルダー処理
+        function generatePrompt() {
+            const role = document.getElementById('p-role').value;
+            const target = document.getElementById('p-target').value;
+            const format = document.getElementById('p-format').value;
+            const constraints = document.getElementById('p-constraints').value;
+
+            const structuredPrompt = `# 役割\nあなたは、${role}です。\n\n# ターゲット\n${target}\n\n# 出力フォーマット\n${format}\n\n# 制約事項\n${constraints}\n\n# 参考情報\n[ここに関連する情報を入力してください]`;
+            
+            document.getElementById('prompt-output').value = structuredPrompt;
+            showToast("プロンプトを新しく生成しました！");
+        }
+
+        // 動画プロンプトビルダー処理
+        function generateVideoPrompt() {
+            const subject = document.getElementById('v-subject').value;
+            const motion = document.getElementById('v-motion').value;
+            const style = document.getElementById('v-style').value;
+            const light = document.getElementById('v-light').value;
+
+            const compiledVideoPrompt = `"${subject}, ${motion}, ${style}, ${light}"`;
+            
+            document.getElementById('video-prompt-output').value = compiledVideoPrompt;
+            showToast("動画プロンプトを構築しました！");
+        }
+
+        // インタラクティブコード説明用マッピング
+        const codeExplanations = {
+            1: "<strong>[行 01 - 03] 関数定義</strong><br>処理の入り口です。この関数を実行することで、スプレッドシート内のデータを自動的かつ連続的にAI解析します。",
+            2: "<strong>[行 06] 安全なAPI呼び出し</strong><br>スクリプトプロパティ機能を使用し、コード内にAPIキーを直接書き込むことなく、安全に外部認証を通します（流出防止対策）。",
+            3: "<strong>[行 07 - 10] バリデーションチェック</strong><br>APIキーがプロパティに設定されていない場合、処理をその場で中断し、エラーメッセージをダイアログで表示します。",
+            4: "<strong>[行 13 - 14] シート情報の取得</strong><br>現在アクティブに開かれているシートと、データが入力されている最終行数を自動検出します。",
+            5: "<strong>[行 15 - 18] 空白チェック</strong><br>2行目（見出し除く）以降にデータがない場合は、処理をする必要がないためアラートを出して終了します。",
+            6: "<strong>[行 21 - 22] 範囲のロード</strong><br>スプレッドシートのA列の2行目から最終行に入っているすべてのデータを、配列（変数values）に一括して格納します。",
+            7: "<strong>[行 25 - 27] ループ処理の開始</strong><br>読み込んだすべての行数に対して、上から順番に1行ずつ取り出して処理を開始します。",
+            8: "<strong>[行 28 - 31] 重複リクエスト防止（重要）</strong><br>すでに要約(B列)とカテゴリ(C列)が埋まっている行はスキップします。これにより無料枠制限や処理時間を無駄に消費しません。",
+            9: "<strong>[行 33 - 34] API実行関数のキック</strong><br>下部で定義されている、Gemini APIを叩いてJSON結果を受け取る専用関数を呼び出します。",
+            10: "<strong>[行 35 - 36] シートへの結果書き込み</strong><br>AIから返ってきた『要約テキスト』をB列に、『分類タグ』をC列にプログラムから自動的に書き込みます。",
+            11: "<strong>[行 38] 無料制限を保護するウェイト（1秒スリープ）</strong><br>無料のAPIキーは1分間にリクエストできる回数(Rate Limit)が制限されています。あえて1秒ずつ休憩を挟むことでエラーを回避します。"
+        };
+
+        function showExplain(lineNumber) {
+            const explainer = document.getElementById('explainer-content');
+            if (codeExplanations[lineNumber]) {
+                explainer.innerHTML = codeExplanations[lineNumber];
+            }
+        }
+
+        // 読み込み時初期化
+        window.onload = function() {
+            loadProgress();
+            generatePrompt();
+            generateVideoPrompt();
+        };
+    </script>
+</body>
+</html>
